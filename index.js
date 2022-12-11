@@ -1,7 +1,7 @@
-const puppeteer = require("puppeteer");
+import puppeteer from "puppeteer";
 
-const start = async () => {
-  const browser = await puppeteer.launch();
+(async () => {
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   await page.goto("https://www.bazaraki.com/");
 
@@ -15,27 +15,30 @@ const start = async () => {
   await page.waitForSelector(showAllAds);
   await page.click(showAllAds);
 
-  const awaitHeader =
-    "#listing > section > div.wrap > div.list-announcement-left > div.rubrics-menu.clearfix > h1";
-  await page.waitForSelector(awaitHeader);
+  // const ulOtherAds =
+  //   "#listing > section > div.wrap > div.list-announcement-left > div.list-announcement-assortiments > ul.list-simple__output.js-list-simple__output";
 
-  const ulOtherAds =
-    "#listing > section > div.wrap > div.list-announcement-left > div.list-announcement-assortiments > ul.list-simple__output.js-list-simple__output";
-
-  const liElements = await page.$$(`${ulOtherAds} li`);
+  // await page.waitForSelector(ulOtherAds);
 
   let list = [];
 
-  liElements.forEach(async (li) => {
-    // const className = await li.getProperty("class");
-    // const className = await li.getProperty("itemtype");
-    list.push(li);
+  const text = await page.evaluate(() => {
+    const elements = document.querySelectorAll(
+      ".announcement-block__price _verified"
+    );
+    return Array.from(elements).map((element) => element.textContent);
   });
+
+  list.push(text);
+
+  // liElements.forEach(async (li) => {
+  //   // const className = await li.getProperty("class");
+  //   // const className = await li.getProperty("itemtype");
+  //   list.push(li);
+  // });
 
   console.log(list);
   // use screenshots for debuggin?
   await page.screenshot({ path: "amazing.png" });
   await browser.close();
-};
-
-start();
+})();
