@@ -1,7 +1,11 @@
 import puppeteer from "puppeteer";
 
 (async () => {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({
+    headless: false,
+    defaultViewport: false,
+    userDataDir: "./tmp",
+  });
   const page = await browser.newPage();
   await page.goto("https://www.bazaraki.com/");
 
@@ -15,27 +19,22 @@ import puppeteer from "puppeteer";
   await page.waitForSelector(showAllAds);
   await page.click(showAllAds);
 
-  // const ulOtherAds =
-  //   "#listing > section > div.wrap > div.list-announcement-left > div.list-announcement-assortiments > ul.list-simple__output.js-list-simple__output";
-
-  // await page.waitForSelector(ulOtherAds);
-
   let list = [];
 
-  const text = await page.evaluate(() => {
-    const elements = document.querySelectorAll(
-      ".announcement-block__price _verified"
+  const offerContainer = await page.$$(
+    ".list-simple__output.js-list-simple__output > .announcement-container"
+  );
+
+  for (const offer of offerContainer) {
+    const price = await page.evaluate(
+      (el) =>
+        el.querySelector(
+          "div.list-announcement-block > div.announcement-block-link.announcement-block__link > div"
+        ).textContent,
+      offer
     );
-    return Array.from(elements).map((element) => element.textContent);
-  });
-
-  list.push(text);
-
-  // liElements.forEach(async (li) => {
-  //   // const className = await li.getProperty("class");
-  //   // const className = await li.getProperty("itemtype");
-  //   list.push(li);
-  // });
+    list.push(price);
+  }
 
   console.log(list);
   // use screenshots for debuggin?
