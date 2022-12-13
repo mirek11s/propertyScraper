@@ -25,18 +25,37 @@ import puppeteer from "puppeteer";
     ".list-simple__output.js-list-simple__output > .announcement-container"
   );
 
+  // capture all prices and descriptions from the unpaid container
   for (const offer of offerContainer) {
-    const price = await page.evaluate(
-      (el) =>
-        el.querySelector(
-          "div.list-announcement-block > div.announcement-block-link.announcement-block__link > div"
-        ).textContent,
-      offer
-    );
-    list.push(price);
+    try {
+      const price = await page.evaluate(
+        (el) =>
+          el.querySelector(
+            "div.list-announcement-block > div.announcement-block-link.announcement-block__link > div"
+          ).textContent,
+        offer
+      );
+
+      const textDescription = await page.evaluate(
+        (el) =>
+          el.querySelector(
+            "div.list-announcement-block > div.announcement-block-text.announcement-block__text > div > div.announcement-block__date"
+          ).textContent,
+        offer
+      );
+
+      const clearedPrice = price.replace(/\s+/g, " ").trim();
+      // replace . with ,
+      const newPrice = clearedPrice.replace(/\./g, ",");
+      const clearTextDescription = textDescription.replace(/\s+/g, " ").trim();
+      list.push({ price: newPrice, description: clearTextDescription });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
-  console.log(list);
+  const jsonList = JSON.stringify(list);
+  console.log(jsonList);
   // use screenshots for debuggin?
   await page.screenshot({ path: "amazing.png" });
   await browser.close();
