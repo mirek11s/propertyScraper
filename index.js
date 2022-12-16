@@ -19,39 +19,57 @@ import puppeteer from "puppeteer";
   await page.waitForSelector(showAllAds);
   await page.click(showAllAds);
 
-  let list = [];
-
   const offerContainer = await page.$$(
     ".list-simple__output.js-list-simple__output > .announcement-container"
   );
 
+  let list = [];
   // capture all prices and descriptions from the unpaid container
   for (const offer of offerContainer) {
+    let price = "";
+    let textDescription = "";
+    let category = "";
+
     try {
-      const price = await page.evaluate(
+      price = await page.evaluate(
         (el) =>
           el.querySelector(
             "div.list-announcement-block > div.announcement-block-link.announcement-block__link > div"
           ).textContent,
         offer
       );
+    } catch (e) {}
 
-      const textDescription = await page.evaluate(
+    try {
+      textDescription = await page.evaluate(
         (el) =>
           el.querySelector(
             "div.list-announcement-block > div.announcement-block-text.announcement-block__text > div > div.announcement-block__date"
           ).textContent,
         offer
       );
+    } catch (error) {}
 
-      const clearedPrice = price.replace(/\s+/g, " ").trim();
-      // replace . with ,
-      const newPrice = clearedPrice.replace(/\./g, ",");
-      const clearTextDescription = textDescription.replace(/\s+/g, " ").trim();
-      list.push({ price: newPrice, description: clearTextDescription });
-    } catch (e) {
-      console.log(e);
-    }
+    // return second span of the div
+    try {
+      category = await page.evaluate((el) => {
+        const spanElements = el.querySelectorAll(
+          ".announcement-block__breadcrumbs > span"
+        );
+        const secondSpan = spanElements[1];
+        return secondSpan.textContent;
+      }, offer);
+    } catch (error) {}
+
+    const clearedPrice = price.replace(/\s+/g, " ").trim();
+    // replace . with ,
+    const newPrice = clearedPrice.replace(/\./g, ",");
+    const clearTextDescription = textDescription.replace(/\s+/g, " ").trim();
+    list.push({
+      price: newPrice,
+      updatedOn: clearTextDescription,
+      category: category,
+    });
   }
 
   const jsonList = JSON.stringify(list);
