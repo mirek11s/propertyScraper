@@ -5,7 +5,7 @@ import { urls, delay } from "./constants.js";
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 100,
-    monitor: true,
+    // monitor: true,
     puppeteerOptions: {
       headless: false,
       defaultViewport: false,
@@ -18,11 +18,10 @@ import { urls, delay } from "./constants.js";
     console.log(`Error crawling ${data}: ${err.message}`);
   });
 
+  let list = [];
+  let isNextBtnExist = true;
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url);
-
-    let list = [];
-    let isNextBtnExist = true;
 
     while (isNextBtnExist) {
       await page.waitForSelector(
@@ -80,22 +79,19 @@ import { urls, delay } from "./constants.js";
           updatedOn: clearTextDescription,
           category: category,
         });
+      }
 
-        // check if Next button exists and if it does not, set the loop to false
-        await page.waitForSelector(
-          ".number-list-next.js-page-filter.number-list-line",
-          { visible: true }
-        );
-        const nextButton = await page.$(
-          ".number-list-next.js-page-filter.number-list-line"
-        );
-        if (nextButton) {
-          await nextButton.evaluate((b) => b.click());
-          // wait for page to fully load
-          await page.waitForNavigation({ waitUnitl: "networkidle2" });
-        } else {
-          isNextBtnExist = false;
-        }
+      // check if button container exists and click next
+      await page.waitForSelector(".number-list", { visible: true });
+      const nextButton = await page.$(
+        ".number-list-next.js-page-filter.number-list-line"
+      );
+      if (nextButton) {
+        await nextButton.evaluate((b) => b.click());
+        // wait for page to fully load
+        await page.waitForNavigation({ waitUnitl: "networkidle2" });
+      } else {
+        isNextBtnExist = false;
       }
     }
     const jsonList = JSON.stringify(list);
