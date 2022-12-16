@@ -10,6 +10,7 @@
 export const urls = [
   "https://www.bazaraki.com/real-estate-for-sale/prefabricated-houses/",
   "https://www.bazaraki.com/real-estate-for-sale/buildings/",
+  "https://www.bazaraki.com/real-estate-for-sale/commercial-property/",
 ];
 
 export const delay = (time) => {

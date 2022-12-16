@@ -1,11 +1,12 @@
+import * as fs from "fs";
 import { Cluster } from "puppeteer-cluster";
-import { urls, delay } from "./constants.js";
+import { urls } from "./constants.js";
 
 (async () => {
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 100,
-    // monitor: true,
+    monitor: true,
     puppeteerOptions: {
       headless: false,
       defaultViewport: false,
@@ -74,11 +75,13 @@ import { urls, delay } from "./constants.js";
         const clearTextDescription = textDescription
           .replace(/\s+/g, " ")
           .trim();
-        list.push({
+
+        const newProperty = {
           price: newPrice,
           updatedOn: clearTextDescription,
           category: category,
-        });
+        };
+        list.push(newProperty);
       }
 
       // check if button container exists and click next
@@ -94,7 +97,12 @@ import { urls, delay } from "./constants.js";
         isNextBtnExist = false;
       }
     }
+
     const jsonList = JSON.stringify(list);
+    fs.appendFile("resykt.txt", jsonList, function (err) {
+      if (err) throw err;
+    });
+
     console.log(jsonList);
     console.log(jsonList.length);
   });
