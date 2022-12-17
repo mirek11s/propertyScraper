@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import { Cluster } from "puppeteer-cluster";
-import { delay, urls } from "./constants.js";
+import { delay, urls, getDateString } from "./constants.js";
 
 (async () => {
   const cluster = await Cluster.launch({
@@ -108,7 +108,7 @@ import { delay, urls } from "./constants.js";
     }
 
     const jsonList = JSON.stringify(list);
-    fs.appendFile("resykt.json", jsonList, function (err) {
+    fs.appendFile(`data_${getDateString()}.json`, jsonList, function (err) {
       if (err) throw err;
     });
   });
