@@ -1,16 +1,15 @@
 import * as fs from "fs";
 import { Cluster } from "puppeteer-cluster";
-import { urls } from "./constants.js";
+import { delay, urls } from "./constants.js";
 
 (async () => {
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 100,
-    monitor: true,
+    // monitor: true,
     puppeteerOptions: {
       headless: false,
-      defaultViewport: false,
-      //   userDataDir: "./tmp",
+      userDataDir: "./tmp",
     },
   });
 
@@ -22,7 +21,11 @@ import { urls } from "./constants.js";
   let list = [];
   let isNextBtnExist = true;
   await cluster.task(async ({ page, data: url }) => {
-    await page.goto(url);
+    await page.goto(url, {
+      waitUntil: "load",
+      // Remove the timeout
+      timeout: 0,
+    });
 
     while (isNextBtnExist) {
       await page.waitForSelector(
@@ -93,13 +96,14 @@ import { urls } from "./constants.js";
         await nextButton.evaluate((b) => b.click());
         // wait for page to fully load
         await page.waitForNavigation({ waitUnitl: "networkidle2" });
+        await delay(4000);
       } else {
         isNextBtnExist = false;
       }
     }
 
     const jsonList = JSON.stringify(list);
-    fs.appendFile("resykt.txt", jsonList, function (err) {
+    fs.appendFile("resykt.json", jsonList, function (err) {
       if (err) throw err;
     });
 
@@ -108,7 +112,7 @@ import { urls } from "./constants.js";
   });
 
   for (const url of urls) {
-    await cluster.queue(url);
+    cluster.queue(url);
   }
 
   await cluster.idle();
