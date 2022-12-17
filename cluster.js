@@ -6,7 +6,7 @@ import { delay, urls } from "./constants.js";
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 100,
-    // monitor: true,
+    monitor: true,
     puppeteerOptions: {
       headless: false,
       defaultViewport: false,
@@ -21,10 +21,10 @@ import { delay, urls } from "./constants.js";
   });
 
   let list = [];
-  let isNextBtnExist = true;
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url);
 
+    let isNextBtnExist = true;
     while (isNextBtnExist) {
       await page.waitForSelector(
         ".list-simple__output.js-list-simple__output > .announcement-container"
@@ -89,20 +89,21 @@ import { delay, urls } from "./constants.js";
       try {
         await page.waitForSelector(".number-list", { visible: true });
       } catch (error) {
-        isNextBtnExist = false;
         console.error(error);
       }
 
       const nextButton = await page.$(
         ".number-list-next.js-page-filter.number-list-line"
       );
-      if (nextButton) {
+
+      const isBtnExist = nextButton !== null;
+      isNextBtnExist = isBtnExist;
+
+      if (isBtnExist) {
         await nextButton.evaluate((b) => b.click());
         // wait for page to fully load
         await page.waitForNavigation({ waitUnitl: "networkidle2" });
         await delay(4000);
-      } else {
-        isNextBtnExist = false;
       }
     }
 
@@ -110,9 +111,6 @@ import { delay, urls } from "./constants.js";
     fs.appendFile("resykt.json", jsonList, function (err) {
       if (err) throw err;
     });
-
-    console.log(jsonList);
-    console.log(jsonList.length);
   });
 
   for (const url of urls) {
