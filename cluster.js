@@ -9,8 +9,10 @@ import { delay, urls } from "./constants.js";
     // monitor: true,
     puppeteerOptions: {
       headless: false,
+      defaultViewport: false,
       userDataDir: "./tmp",
     },
+    timeout: 7200000,
   });
 
   // handle on error in one of the pages so it does not crash the script
@@ -21,11 +23,7 @@ import { delay, urls } from "./constants.js";
   let list = [];
   let isNextBtnExist = true;
   await cluster.task(async ({ page, data: url }) => {
-    await page.goto(url, {
-      waitUntil: "load",
-      // Remove the timeout
-      timeout: 0,
-    });
+    await page.goto(url);
 
     while (isNextBtnExist) {
       await page.waitForSelector(
@@ -88,7 +86,13 @@ import { delay, urls } from "./constants.js";
       }
 
       // check if button container exists and click next
-      await page.waitForSelector(".number-list", { visible: true });
+      try {
+        await page.waitForSelector(".number-list", { visible: true });
+      } catch (error) {
+        isNextBtnExist = false;
+        console.error(error);
+      }
+
       const nextButton = await page.$(
         ".number-list-next.js-page-filter.number-list-line"
       );
@@ -112,7 +116,7 @@ import { delay, urls } from "./constants.js";
   });
 
   for (const url of urls) {
-    cluster.queue(url);
+    await cluster.queue(url);
   }
 
   await cluster.idle();
