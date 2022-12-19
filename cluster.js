@@ -38,6 +38,7 @@ import { delay, urls, getDateString } from "./constants.js";
         let price = "";
         let textDescription = "";
         let category = "";
+        let tagObject = {};
 
         try {
           price = await page.evaluate(
@@ -77,12 +78,51 @@ import { delay, urls, getDateString } from "./constants.js";
           .replace(/\s+/g, " ")
           .trim();
 
+        // open the new tab to take the information from the whole advert
+        // Scroll to the offer element on the page
+        await page.evaluate((offer) => {
+          offer.scrollIntoView();
+        }, offer);
+
+        // find the link in the offer advert and then open newTab using it
+        const contentLink = await page.evaluate((offer) => {
+          const anchor = offer.querySelector("a");
+          const href = anchor.getAttribute("href");
+          return href;
+        }, offer);
+
+        const page2 = await page.browser().newPage();
+        await page2.goto(`https://www.bazaraki.com${contentLink}`);
+
+        await page2.bringToFront();
+
+        const summaryContainer = await page2.$(".chars-column");
+
+        if (summaryContainer) {
+          const lists = await summaryContainer.$$("li");
+          for (const list of lists) {
+            try {
+              const listText = await page2.evaluate(
+                (span) => span.textContent,
+                list
+              );
+              const clearedText = listText.replace(/\s+/g, " ").trim();
+              // create object out of the string ('Area: 95 m²') and push to the list:
+              const [key, value] = clearedText.split(": ");
+              tagObject[key] = value;
+            } catch (error) {}
+          }
+          await delay(4000);
+        }
+
         const newProperty = {
           price: newPrice,
           updatedOn: clearTextDescription,
           category: category,
+          ...tagObject,
         };
         list.push(newProperty);
+        await page2.close();
       }
 
       // check if button container exists and click next
