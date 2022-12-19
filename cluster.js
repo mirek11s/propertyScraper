@@ -1,11 +1,18 @@
 import * as fs from "fs";
+import vanillaPuppeteer from "puppeteer";
+import Stealth from "puppeteer-extra-plugin-stealth";
 import { Cluster } from "puppeteer-cluster";
+import { addExtra } from "puppeteer-extra";
 import { delay, urls, getDateString } from "./constants.js";
 
 (async () => {
+  const puppeteer = addExtra(vanillaPuppeteer);
+  puppeteer.use(Stealth());
+
   const cluster = await Cluster.launch({
-    concurrency: Cluster.CONCURRENCY_PAGE,
+    puppeteer,
     maxConcurrency: 100,
+    concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
       headless: false,
