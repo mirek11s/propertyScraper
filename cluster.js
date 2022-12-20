@@ -11,11 +11,12 @@ import { delay, urls, getDateString } from "./constants.js";
 
   const cluster = await Cluster.launch({
     puppeteer,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
     maxConcurrency: 100,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
-      headless: false,
+      headless: true,
       defaultViewport: false,
       userDataDir: "./tmp",
     },
