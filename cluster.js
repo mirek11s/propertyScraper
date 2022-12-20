@@ -20,7 +20,7 @@ import { delay, urls, getDateString } from "./constants.js";
       defaultViewport: false,
       userDataDir: "./tmp",
     },
-    timeout: 7200000,
+    timeout: 43200000, //12h to timeout
   });
 
   // handle on error in one of the pages so it does not crash the script
@@ -137,7 +137,7 @@ import { delay, urls, getDateString } from "./constants.js";
       try {
         await page.waitForSelector(".number-list", { visible: true });
       } catch (error) {
-        console.error(error);
+        console.log(error);
       }
 
       const nextButton = await page.$(
@@ -156,7 +156,7 @@ import { delay, urls, getDateString } from "./constants.js";
     }
 
     const jsonList = JSON.stringify(list);
-    fs.appendFile(`data_${getDateString()}.json`, jsonList, function (err) {
+    fs.appendFile("data1.json", jsonList, function (err) {
       if (err) throw err;
     });
   });
