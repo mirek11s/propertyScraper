@@ -30,7 +30,7 @@ import { delay, urls } from "./constants.js";
 
   let list = [];
   await cluster.task(async ({ page, data: url }) => {
-    await page.goto(url);
+    await page.goto(url, { timeout: 0 });
 
     let isNextBtnExist = true;
     while (isNextBtnExist) {
@@ -101,49 +101,55 @@ import { delay, urls } from "./constants.js";
         }, offer);
 
         const page2 = await page.browser().newPage();
-        await page2.goto(`https://www.bazaraki.com${contentLink}`);
-
-        await page2.bringToFront();
-
         try {
-          adId = await page2.evaluate(() => {
-            return document.querySelector(".number-announcement > span")
-              .textContent;
+          await page2.goto(`https://www.bazaraki.com${contentLink}`, {
+            timeout: 160000,
           });
-        } catch (error) {}
 
-        tagObject = {
-          adId,
-        };
+          await page2.bringToFront();
 
-        const summaryContainer = await page2.$(".chars-column");
+          try {
+            adId = await page2.evaluate(() => {
+              return document.querySelector(".number-announcement > span")
+                .textContent;
+            });
+          } catch (error) {}
 
-        if (summaryContainer) {
-          const lists = await summaryContainer.$$("li");
-          for (const list of lists) {
-            try {
-              const listText = await page2.evaluate(
-                (span) => span.textContent,
-                list
-              );
-              const clearedText = listText.replace(/\s+/g, " ").trim();
-              // create object out of the string ('Area: 95 m²') and push to the list:
-              const [key, value] = clearedText.split(": ");
-              tagObject[key] = value;
-            } catch (error) {}
+          tagObject = {
+            adId,
+          };
+
+          const summaryContainer = await page2.$(".chars-column");
+
+          if (summaryContainer) {
+            const lists = await summaryContainer.$$("li");
+            for (const list of lists) {
+              try {
+                const listText = await page2.evaluate(
+                  (span) => span.textContent,
+                  list
+                );
+                const clearedText = listText.replace(/\s+/g, " ").trim();
+                // create object out of the string ('Area: 95 m²') and push to the list:
+                const [key, value] = clearedText.split(": ");
+                tagObject[key] = value;
+              } catch (error) {}
+            }
+            await delay(4000);
           }
-          await delay(2000);
-        }
 
-        const newProperty = {
-          price: newPrice,
-          updatedOn: clearTextDescription,
-          category: category,
-          ...tagObject,
-        };
-        list.push(newProperty);
-        await page2.close();
-        await delay(500);
+          const newProperty = {
+            price: newPrice,
+            updatedOn: clearTextDescription,
+            category: category,
+            ...tagObject,
+          };
+          list.push(newProperty);
+          await page2.close();
+          await delay(500);
+        } catch {
+          await page2.close();
+        }
       }
 
       // check if button container exists and click next
