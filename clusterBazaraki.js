@@ -143,6 +143,7 @@ import { delay, urls } from "./constants.js";
         };
         list.push(newProperty);
         await page2.close();
+        await delay(500);
       }
 
       // check if button container exists and click next
@@ -158,11 +159,11 @@ import { delay, urls } from "./constants.js";
 
       isNextBtnExist = nextButton !== null;
 
-      if (isBtnExist) {
+      if (isNextBtnExist) {
         await nextButton.evaluate((b) => b.click());
         // wait for page to fully load
         await page.waitForNavigation({ waitUnitl: "networkidle2" });
-        await delay(4000);
+        await delay(2000);
       }
     }
 
