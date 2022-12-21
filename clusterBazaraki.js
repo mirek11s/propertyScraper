@@ -3,7 +3,7 @@ import vanillaPuppeteer from "puppeteer";
 import Stealth from "puppeteer-extra-plugin-stealth";
 import { Cluster } from "puppeteer-cluster";
 import { addExtra } from "puppeteer-extra";
-import { delay, urls, getDateString } from "./constants.js";
+import { delay, urls } from "./constants.js";
 
 (async () => {
   const puppeteer = addExtra(vanillaPuppeteer);
@@ -12,15 +12,15 @@ import { delay, urls, getDateString } from "./constants.js";
   const cluster = await Cluster.launch({
     puppeteer,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    maxConcurrency: 100,
+    maxConcurrency: 2,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
-      headless: true,
+      headless: false,
       defaultViewport: false,
       userDataDir: "./tmp",
     },
-    timeout: 43200000, //12h to timeout
+    timeout: 57600000, //12h to timeout
   });
 
   // handle on error in one of the pages so it does not crash the script
@@ -46,6 +46,7 @@ import { delay, urls, getDateString } from "./constants.js";
         let price = "";
         let textDescription = "";
         let category = "";
+        let adId = "";
         let tagObject = {};
 
         try {
@@ -104,6 +105,17 @@ import { delay, urls, getDateString } from "./constants.js";
 
         await page2.bringToFront();
 
+        try {
+          adId = await page2.evaluate(() => {
+            return document.querySelector(".number-announcement > span")
+              .textContent;
+          });
+        } catch (error) {}
+
+        tagObject = {
+          adId,
+        };
+
         const summaryContainer = await page2.$(".chars-column");
 
         if (summaryContainer) {
@@ -144,8 +156,7 @@ import { delay, urls, getDateString } from "./constants.js";
         ".number-list-next.js-page-filter.number-list-line"
       );
 
-      const isBtnExist = nextButton !== null;
-      isNextBtnExist = isBtnExist;
+      isNextBtnExist = nextButton !== null;
 
       if (isBtnExist) {
         await nextButton.evaluate((b) => b.click());
@@ -156,7 +167,7 @@ import { delay, urls, getDateString } from "./constants.js";
     }
 
     const jsonList = JSON.stringify(list);
-    fs.appendFile("data1.json", jsonList, function (err) {
+    fs.appendFile("bazaraki.json", jsonList, function (err) {
       if (err) throw err;
     });
   });
