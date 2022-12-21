@@ -12,7 +12,7 @@ import { delay, urls } from "./constants.js";
   const cluster = await Cluster.launch({
     puppeteer,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    maxConcurrency: 2,
+    maxConcurrency: 1,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
@@ -20,7 +20,7 @@ import { delay, urls } from "./constants.js";
       defaultViewport: false,
       userDataDir: "./tmp",
     },
-    timeout: 57600000, //12h to timeout
+    timeout: 57600000, //16h to timeout
   });
 
   // handle on error in one of the pages so it does not crash the script
@@ -132,7 +132,7 @@ import { delay, urls } from "./constants.js";
               tagObject[key] = value;
             } catch (error) {}
           }
-          await delay(4000);
+          await delay(2000);
         }
 
         const newProperty = {
