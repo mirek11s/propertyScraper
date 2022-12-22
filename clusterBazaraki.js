@@ -3,7 +3,7 @@ import vanillaPuppeteer from "puppeteer";
 import Stealth from "puppeteer-extra-plugin-stealth";
 import { Cluster } from "puppeteer-cluster";
 import { addExtra } from "puppeteer-extra";
-import { delay, urls, getDateString } from "./constants.js";
+import { delay, urlsBazaraki, getDateString } from "./constants.js";
 
 (async () => {
   const puppeteer = addExtra(vanillaPuppeteer);
@@ -186,7 +186,7 @@ import { delay, urls, getDateString } from "./constants.js";
     }
   });
 
-  for (const url of urls) {
+  for (const url of urlsBazaraki) {
     await cluster.queue(url);
   }
 

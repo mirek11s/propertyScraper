@@ -1,4 +1,4 @@
-export const urls = [
+export const urlsBazaraki = [
   "https://www.bazaraki.com/real-estate-for-sale/commercial-property/",
   "https://www.bazaraki.com/real-estate-for-sale/buildings/",
   "https://www.bazaraki.com/real-estate-for-sale/prefabricated-houses/",
