@@ -3,7 +3,7 @@ import vanillaPuppeteer from "puppeteer";
 import Stealth from "puppeteer-extra-plugin-stealth";
 import { Cluster } from "puppeteer-cluster";
 import { addExtra } from "puppeteer-extra";
-import { delay, urls } from "./constants.js";
+import { delay, urls, getDateString } from "./constants.js";
 
 (async () => {
   const puppeteer = addExtra(vanillaPuppeteer);
@@ -29,6 +29,7 @@ import { delay, urls } from "./constants.js";
   });
 
   let list = [];
+  const date = getDateString();
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url, { timeout: 0 });
 
@@ -115,10 +116,6 @@ import { delay, urls } from "./constants.js";
             });
           } catch (error) {}
 
-          tagObject = {
-            adId,
-          };
-
           const summaryContainer = await page2.$(".chars-column");
 
           if (summaryContainer) {
@@ -139,12 +136,19 @@ import { delay, urls } from "./constants.js";
           }
 
           const newProperty = {
+            adId,
             price: newPrice,
             updatedOn: clearTextDescription,
             category: category,
             ...tagObject,
           };
+
+          const jsonList = JSON.stringify(newProperty) + ",";
+          fs.appendFileSync(`bazaraki_${date}.json`, jsonList, function (err) {
+            if (err) throw err;
+          });
           list.push(newProperty);
+
           await page2.close();
           await delay(500);
         } catch {
@@ -172,11 +176,6 @@ import { delay, urls } from "./constants.js";
         await delay(2000);
       }
     }
-
-    const jsonList = JSON.stringify(list);
-    fs.appendFile("bazaraki.json", jsonList, function (err) {
-      if (err) throw err;
-    });
   });
 
   for (const url of urls) {
@@ -185,4 +184,9 @@ import { delay, urls } from "./constants.js";
 
   await cluster.idle();
   await cluster.close();
+
+  // adding the array brackets at the end of the script
+  const fileData = fs.readFileSync(`bazaraki_${date}.json`, "utf8");
+  const newData = "[" + fileData + "]";
+  fs.writeFileSync(`bazaraki_${date}.json`, newData, "utf8");
 })();

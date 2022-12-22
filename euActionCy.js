@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import vanillaPuppeteer from "puppeteer";
 import Stealth from "puppeteer-extra-plugin-stealth";
 import { addExtra } from "puppeteer-extra";
@@ -14,7 +15,9 @@ import { delay } from "./constants.js";
   });
 
   const page = await browser.newPage();
-  await page.goto("https://bot.sannysoft.com");
+  await page.goto(
+    "https://www.eauction-cy.com/Home/HlektronikoiPleistiriasmoi"
+  );
 
   const englishLangBtn = await page.$("#langEn");
   await englishLangBtn.click();
