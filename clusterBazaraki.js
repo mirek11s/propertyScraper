@@ -143,11 +143,19 @@ import { delay, urls, getDateString } from "./constants.js";
             ...tagObject,
           };
 
-          const jsonList = JSON.stringify(newProperty) + ",";
-          fs.appendFileSync(`bazaraki_${date}.json`, jsonList, function (err) {
-            if (err) throw err;
-          });
-          list.push(newProperty);
+          // filter the list to check if this adId already exist and if it does, dont push it to avoid duplicates
+          const existsInList = list.some((obj) => obj.adId === adId);
+          if (!existsInList) {
+            list.push(newProperty);
+            const jsonList = JSON.stringify(newProperty) + ",";
+            fs.appendFileSync(
+              `bazaraki_${date}.json`,
+              jsonList,
+              function (err) {
+                if (err) throw err;
+              }
+            );
+          }
 
           await page2.close();
           await delay(500);
