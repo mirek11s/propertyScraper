@@ -71,6 +71,29 @@ import { delay } from "./constants.js";
         district = neighbourhood;
       } catch (e) {}
 
+      // find the link in the offer advert and then open newTab using it
+      const contentLink = await page.evaluate((offer) => {
+        const anchor = offer.querySelector(
+          "div.AList-BoxFooter > div > div.AList-BoxFooterRight > a"
+        );
+        const href = anchor.getAttribute("href");
+        return href;
+      }, auction);
+
+      const page2 = await page.browser().newPage();
+      try {
+        await page2.goto(`https://www.eauction-cy.com${contentLink}`, {
+          timeout: 160000,
+        });
+
+        await page2.bringToFront();
+
+        await page2.close();
+        await delay(500);
+      } catch {
+        await page2.close();
+      }
+
       console.log("ee");
     }
   });
