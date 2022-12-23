@@ -12,7 +12,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
   const cluster = await Cluster.launch({
     puppeteer,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    maxConcurrency: 1,
+    maxConcurrency: 2,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
@@ -35,9 +35,11 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
 
     let isNextBtnExist = true;
     while (isNextBtnExist) {
-      await page.waitForSelector(
-        ".list-simple__output.js-list-simple__output > .announcement-container"
-      );
+      try {
+        await page.waitForSelector(
+          ".list-simple__output.js-list-simple__output > .announcement-container"
+        );
+      } catch (error) {}
       const offerContainer = await page.$$(
         ".list-simple__output.js-list-simple__output > .announcement-container"
       );
