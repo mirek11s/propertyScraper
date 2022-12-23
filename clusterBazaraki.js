@@ -20,7 +20,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
       defaultViewport: false,
       userDataDir: "./tmp",
     },
-    timeout: 57600000, //16h to timeout
+    timeout: 86400000, //24h to timeout
   });
 
   // handle on error in one of the pages so it does not crash the script
@@ -73,9 +73,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
         // return second span of the div
         try {
           category = await page.evaluate((el) => {
-            const spanElements = el.querySelectorAll(
-              ".announcement-block__breadcrumbs > span"
-            );
+            const spanElements = el.querySelectorAll(".announcement-block__breadcrumbs > span");
             const secondSpan = spanElements[1];
             return secondSpan.textContent;
           }, offer);
@@ -84,9 +82,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
         const clearedPrice = price.replace(/\s+/g, " ").trim();
         // replace . with ,
         const newPrice = clearedPrice.replace(/\./g, ",");
-        const clearTextDescription = textDescription
-          .replace(/\s+/g, " ")
-          .trim();
+        const clearTextDescription = textDescription.replace(/\s+/g, " ").trim();
 
         // open the new tab to take the information from the whole advert
         // Scroll to the offer element on the page
@@ -111,8 +107,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
 
           try {
             adId = await page2.evaluate(() => {
-              return document.querySelector(".number-announcement > span")
-                .textContent;
+              return document.querySelector(".number-announcement > span").textContent;
             });
           } catch (error) {}
 
@@ -122,10 +117,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
             const lists = await summaryContainer.$$("li");
             for (const list of lists) {
               try {
-                const listText = await page2.evaluate(
-                  (span) => span.textContent,
-                  list
-                );
+                const listText = await page2.evaluate((span) => span.textContent, list);
                 const clearedText = listText.replace(/\s+/g, " ").trim();
                 // create object out of the string ('Area: 95 m²') and push to the list:
                 const [key, value] = clearedText.split(": ");
@@ -148,13 +140,9 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
           if (!existsInList) {
             list.push(newProperty);
             const jsonList = JSON.stringify(newProperty) + ",";
-            fs.appendFileSync(
-              `bazaraki_${date}.json`,
-              jsonList,
-              function (err) {
-                if (err) throw err;
-              }
-            );
+            fs.appendFileSync(`bazaraki_${date}.json`, jsonList, function (err) {
+              if (err) throw err;
+            });
           }
 
           await page2.close();
@@ -171,9 +159,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
         console.log(error);
       }
 
-      const nextButton = await page.$(
-        ".number-list-next.js-page-filter.number-list-line"
-      );
+      const nextButton = await page.$(".number-list-next.js-page-filter.number-list-line");
 
       isNextBtnExist = nextButton !== null;
 
