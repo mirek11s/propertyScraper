@@ -137,7 +137,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
             ...tagObject,
           };
 
-          // filter the list to check if this adId already exist and if it does, dont push it to avoid duplicates
+          // filter the list to check if current adId already exist and if it does, dont push it to avoid duplicates
           const existsInList = list.some((obj) => obj.adId === adId);
           if (!existsInList) {
             list.push(newProperty);

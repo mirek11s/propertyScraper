@@ -3,7 +3,7 @@ import vanillaPuppeteer from "puppeteer";
 import Stealth from "puppeteer-extra-plugin-stealth";
 import { Cluster } from "puppeteer-cluster";
 import { addExtra } from "puppeteer-extra";
-import { delay } from "./constants.js";
+import { delay, getDateString } from "./constants.js";
 
 (async () => {
   const puppeteer = addExtra(vanillaPuppeteer);
@@ -14,7 +14,7 @@ import { delay } from "./constants.js";
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
     maxConcurrency: 1,
     concurrency: Cluster.CONCURRENCY_PAGE,
-    // monitor: true,
+    monitor: true,
     puppeteerOptions: {
       headless: false,
       defaultViewport: false,
@@ -28,6 +28,7 @@ import { delay } from "./constants.js";
   });
 
   let list = [];
+  const date = getDateString();
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url, { timeout: 0 });
 
@@ -43,8 +44,13 @@ import { delay } from "./constants.js";
       let date_posted = "";
       let city = "";
       let district = "";
-      let uniqueCode = "";
-      let reservedPrice = "";
+      let unique_code = "";
+      let reserved_price = "";
+      let status = "";
+      let real_estate_type = "";
+      let area_sq_m = "";
+      let mortgage_lender_name = "";
+      let notification_date = "";
 
       try {
         date_of_conduct = await page.evaluate(
@@ -71,6 +77,19 @@ import { delay } from "./constants.js";
         district = neighbourhood;
       } catch (e) {}
 
+      try {
+        const diryPriceStr = await page.evaluate(
+          (el) => el.querySelector("div.AList-Boxheader > div.AList-BoxheaderRight").textContent,
+          auction
+        );
+        const clearedStr = diryPriceStr.replace(/\s+/g, " ").trim();
+        const [, newPrice] = clearedStr.split(": ");
+        reserved_price = newPrice;
+      } catch (e) {
+        console.log(e);
+      }
+
+      //////////////////////////////////////////////////
       // find the link in the offer advert and then open newTab using it
       const contentLink = await page.evaluate((offer) => {
         const anchor = offer.querySelector(
@@ -87,14 +106,106 @@ import { delay } from "./constants.js";
         });
 
         await page2.bringToFront();
+        try {
+          await page2.waitForSelector("#PropertyArea");
+        } catch (error) {
+          console.log(error);
+        }
 
+        try {
+          const uniqueCodeElement = await page2.$(".AuctionDetailsDivR .ADetailsinput");
+          unique_code = await page2.evaluate((el) => el.textContent, uniqueCodeElement);
+        } catch (error) {
+          console.log(error);
+        }
+
+        try {
+          date_posted = await page2.evaluate(() => {
+            const dirtyDate = document.querySelector(".ADetailsinputDateOn").textContent;
+            // specifies the pattern of the date in the string
+            const dateRegex = /\d{2}\/\d{2}\/\d{4}/;
+            const date = dirtyDate.match(dateRegex)[0];
+            return date;
+          });
+        } catch (error) {
+          console.log(error);
+        }
+
+        try {
+          status = await page2.evaluate(() => {
+            const div = document.querySelector(".StateValue");
+            return div.textContent;
+          });
+        } catch (error) {
+          console.log(error);
+        }
+
+        try {
+          real_estate_type = await page2.evaluate(() => {
+            return document.querySelector(
+              "div.AuctionDetailsSection1 > div:nth-child(8) > label.ADetailsinput"
+            ).textContent;
+          });
+        } catch (error) {
+          console.log(error);
+        }
+
+        try {
+          area_sq_m = await page2.evaluate(() => {
+            return document.querySelector("#PropertyArea").textContent;
+          });
+        } catch (error) {
+          console.log(error);
+        }
+
+        try {
+          mortgage_lender_name = await page2.evaluate(() => {
+            const dirtyLabel = document.querySelector(".ADetailsinput2Cell");
+            const label = dirtyLabel.textContent;
+            return label.replace(/\s+/g, " ").trim();
+          });
+        } catch (error) {
+          console.log(error);
+        }
+
+        try {
+          notification_date = await page2.evaluate(() => {
+            return document.querySelector("#publishDate").textContent;
+          });
+        } catch (error) {
+          console.log(error);
+        }
+
+        const scrapedData = {
+          date_of_conduct,
+          date_posted,
+          city,
+          district,
+          unique_code,
+          reserved_price,
+          status,
+          real_estate_type,
+          area_sq_m,
+          mortgage_lender_name,
+          notification_date,
+        };
+
+        // filter the list to check if current unique_code already exist and if it does, dont push it to avoid duplicates
+        const existsInList = list.some((obj) => obj.unique_code === unique_code);
+        if (!existsInList) {
+          list.push(scrapedData);
+          const jsonList = JSON.stringify(scrapedData) + ",";
+          fs.appendFileSync(`eAuctionCy_${date}.json`, jsonList, function (err) {
+            if (err) throw err;
+          });
+        }
+
+        await delay(3000);
         await page2.close();
-        await delay(500);
+        await delay(3000);
       } catch {
         await page2.close();
       }
-
-      console.log("ee");
     }
   });
 
@@ -106,7 +217,7 @@ import { delay } from "./constants.js";
   await cluster.idle();
   await cluster.close();
   // adding the array brackets at the end of the script
-  // const fileData = fs.readFileSync(`eAuction_${date}.json`, "utf8");
-  // const newData = "[" + fileData + "]";
-  // fs.writeFileSync(`eAuction_${date}.json`, newData, "utf8");
+  const fileData = fs.readFileSync(`eAuctionCy_${date}.json`, "utf8");
+  const newData = "[" + fileData + "]";
+  fs.writeFileSync(`eAuctionCy_${date}.json`, newData, "utf8");
 })();
