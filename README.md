@@ -6,5 +6,5 @@ node .\clusterBazaraki.js --today=true
 To trigger scraping for all ads:
 node .\clusterBazaraki.js
 
-To run scraping on eAuctionsCy:
+Scraping for eAuctionsCy:
 node .\eAuctionCy.js
