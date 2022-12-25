@@ -37,7 +37,7 @@ import { delay, getDateString } from "./constants.js";
     // } catch (error) {}
     // const englishLangBtn = await page.$("#langEn");
     // await englishLangBtn.click();
-    await page.waitForNavigation(); // Wait for the page to load after changing lang
+    // await page.waitForNavigation(); // Wait for the page to load after changing lang
 
     let isNextBtnExist = true;
     while (isNextBtnExist) {
