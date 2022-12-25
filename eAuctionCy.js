@@ -36,6 +36,8 @@ import { delay, getDateString } from "./constants.js";
       await page.waitForSelector("#langE");
     } catch (error) {}
     const englishLangBtn = await page.$("#langEn");
+    console.log(englishLangBtn);
+    console.log(date);
     await englishLangBtn.click();
     await page.waitForNavigation(); // Wait for the page to load after changing lang
 
