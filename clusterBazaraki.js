@@ -33,6 +33,8 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url, { timeout: 0 });
 
+    const isDailyScrape = process.argv.find((arg) => arg.startsWith("--today"))?.split("=")[1];
+    let isAdFromToday = false;
     let isNextBtnExist = true;
     while (isNextBtnExist) {
       try {
@@ -139,7 +141,16 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
 
           // filter the list to check if current adId already exist and if it does, dont push it to avoid duplicates
           const existsInList = list.some((obj) => obj.adId === adId);
-          if (!existsInList) {
+          isAdFromToday = clearTextDescription.includes("Today");
+
+          if (!existsInList && !isDailyScrape) {
+            list.push(newProperty);
+            const jsonList = JSON.stringify(newProperty) + ",";
+            fs.appendFileSync(`bazaraki_${date}.json`, jsonList, function (err) {
+              if (err) throw err;
+            });
+          } else if (!existsInList && isDailyScrape && isAdFromToday) {
+            // if the script is run with --today=true, write to file only today's posts
             list.push(newProperty);
             const jsonList = JSON.stringify(newProperty) + ",";
             fs.appendFileSync(`bazaraki_${date}.json`, jsonList, function (err) {
@@ -148,7 +159,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
           }
 
           await page2.close();
-          await delay(500);
+          await delay(1000);
         } catch {
           await page2.close();
         }
@@ -162,8 +173,12 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
       }
 
       const nextButton = await page.$(".number-list-next.js-page-filter.number-list-line");
-
       isNextBtnExist = nextButton !== null;
+
+      // detect if the next ad is not from today and stop the search
+      if (isDailyScrape && !isAdFromToday) {
+        isNextBtnExist = false;
+      }
 
       if (isNextBtnExist) {
         await nextButton.evaluate((b) => b.click());
