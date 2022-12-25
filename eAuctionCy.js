@@ -16,7 +16,7 @@ import { delay, getDateString } from "./constants.js";
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
-      headless: false,
+      headless: true,
       defaultViewport: false,
       userDataDir: "./tmp",
     },
