@@ -11,12 +11,7 @@ import { delay, getDateString } from "./constants.js";
 
   const cluster = await Cluster.launch({
     puppeteer,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--enable-features=NetworkService",
-      "--ignore-certificate-errors",
-    ],
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
     maxConcurrency: 1,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,

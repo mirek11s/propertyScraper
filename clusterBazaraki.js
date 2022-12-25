@@ -30,10 +30,13 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
 
   let list = [];
   const date = getDateString();
+  const isDailyScrape = process.argv.find((arg) => arg.startsWith("--today"))?.split("=")[1];
+  let nameStr = "";
+  isDailyScrape ? (nameStr = `bazaraki_${date}.json`) : (nameStr = `bazaraki_full_${date}.json`);
+
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url, { timeout: 0 });
 
-    const isDailyScrape = process.argv.find((arg) => arg.startsWith("--today"))?.split("=")[1];
     let isAdFromToday = false;
     let isNextBtnExist = true;
     while (isNextBtnExist) {
@@ -146,14 +149,14 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
           if (!existsInList && !isDailyScrape) {
             list.push(newProperty);
             const jsonList = JSON.stringify(newProperty) + ",";
-            fs.appendFileSync(`bazaraki_${date}.json`, jsonList, function (err) {
+            fs.appendFileSync(nameStr, jsonList, function (err) {
               if (err) throw err;
             });
           } else if (!existsInList && isDailyScrape && isAdFromToday) {
             // if the script is run with --today=true, write to file only today's posts
             list.push(newProperty);
             const jsonList = JSON.stringify(newProperty) + ",";
-            fs.appendFileSync(`bazaraki_${date}.json`, jsonList, function (err) {
+            fs.appendFileSync(nameStr, jsonList, function (err) {
               if (err) throw err;
             });
           }
@@ -197,7 +200,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
   await cluster.close();
 
   // adding the array brackets at the end of the script
-  const fileData = fs.readFileSync(`bazaraki_${date}.json`, "utf8");
+  const fileData = fs.readFileSync(nameStr, "utf8");
   const newData = "[" + fileData + "]";
-  fs.writeFileSync(`bazaraki_${date}.json`, newData, "utf8");
+  fs.writeFileSync(nameStr, newData, "utf8");
 })();
