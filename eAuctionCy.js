@@ -11,7 +11,12 @@ import { delay, getDateString } from "./constants.js";
 
   const cluster = await Cluster.launch({
     puppeteer,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--enable-features=NetworkService",
+      "--ignore-certificate-errors",
+    ],
     maxConcurrency: 1,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
@@ -32,14 +37,12 @@ import { delay, getDateString } from "./constants.js";
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url, { timeout: 0 });
 
-    // try {
-    //   await page.waitForSelector("#langE");
-    // } catch (error) {}
-    // const englishLangBtn = await page.$("#langEn");
-    // console.log(englishLangBtn);
-    // console.log(date);
-    // await englishLangBtn.click();
-    // await page.waitForNavigation(); // Wait for the page to load after changing lang
+    try {
+      await page.waitForSelector("#langE");
+    } catch (error) {}
+    const englishLangBtn = await page.$("#langEn");
+    await englishLangBtn.click();
+    await page.waitForNavigation(); // Wait for the page to load after changing lang
 
     let isNextBtnExist = true;
     while (isNextBtnExist) {
@@ -47,7 +50,6 @@ import { delay, getDateString } from "./constants.js";
         await page.waitForSelector("#AuctionsListDiv .AList-BoxContainer");
       } catch (error) {}
       const auctionsContainer = await page.$$("#AuctionsListDiv .AList-BoxContainer");
-      console.log(auctionsContainer);
       for (const auction of auctionsContainer) {
         let date_of_conduct = "";
         let date_posted = "";
