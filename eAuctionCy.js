@@ -32,11 +32,11 @@ import { delay, getDateString } from "./constants.js";
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url, { timeout: 0 });
 
-    try {
-      await page.waitForSelector("#langE");
-    } catch (error) {}
-    const englishLangBtn = await page.$("#langEn");
-    await englishLangBtn.click();
+    // try {
+    //   await page.waitForSelector("#langE");
+    // } catch (error) {}
+    // const englishLangBtn = await page.$("#langEn");
+    // await englishLangBtn.click();
     await page.waitForNavigation(); // Wait for the page to load after changing lang
 
     let isNextBtnExist = true;
