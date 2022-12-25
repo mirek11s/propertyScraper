@@ -47,7 +47,7 @@ import { delay, getDateString } from "./constants.js";
         await page.waitForSelector("#AuctionsListDiv .AList-BoxContainer");
       } catch (error) {}
       const auctionsContainer = await page.$$("#AuctionsListDiv .AList-BoxContainer");
-      onsole.log(auctionsContainer);
+      console.log(auctionsContainer);
       for (const auction of auctionsContainer) {
         let date_of_conduct = "";
         let date_posted = "";
