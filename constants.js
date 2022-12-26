@@ -8,6 +8,12 @@ export const urlsBazaraki = [
   // "https://www.bazaraki.com/real-estate-for-sale/other/",
 ];
 
+export const buySellUrls = [
+  "https://www.buysellcyprus.com/properties-for-sale/filter-resale/cur-EUR/sort-ru/page-1",
+  "https://www.buysellcyprus.com/properties-for-sale/filter-new/cur-EUR/sort-ru/page-1",
+  "https://www.buysellcyprus.com/properties-for-sale/filter-bank/cur-EUR/sort-ru/page-1",
+];
+
 export const delay = (time) => {
   return new Promise((resolve) => setTimeout(resolve, time));
 };
