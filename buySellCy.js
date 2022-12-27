@@ -117,7 +117,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
                 }
               } catch (error) {}
             }
-            await delay(4000);
+            await delay(5000);
           }
 
           const newProperty = {
@@ -157,8 +157,13 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
       if (isNextBtnExist) {
         await nextButton.evaluate((b) => b.click());
         // wait for page to fully load
-        await page.waitForNavigation({ waitUnitl: "networkidle2" });
-        await delay(2000);
+        // await page.waitForNavigation({ waitUnitl: "networkidle2" });
+        await delay(4000);
+
+        // capture the website's aggressive popup
+        await page.evaluate(() => {
+          window.scrollBy(0, 1500);
+        });
       }
     }
   });
