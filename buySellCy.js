@@ -12,13 +12,12 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
   const cluster = await Cluster.launch({
     puppeteer,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    maxConcurrency: 1,
+    maxConcurrency: 2,
     concurrency: Cluster.CONCURRENCY_PAGE,
-    // monitor: true,
+    monitor: true,
     puppeteerOptions: {
-      headless: false,
+      headless: true,
       defaultViewport: false,
-      userDataDir: "./tmp",
     },
     timeout: 115200000, //32h to timeout
   });
@@ -32,6 +31,18 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
   const date = getDateString();
 
   await cluster.task(async ({ page, data: url }) => {
+    // website sends hostile cookies that give us error 400
+    page.on("response", async (response) => {
+      if (response.status() === 400) {
+        const cookies = await page.cookies();
+        for (const cookie of cookies) {
+          await page.deleteCookie(cookie);
+        }
+        await page.reload();
+        await delay(60000);
+      }
+    });
+
     await page.goto(url, { timeout: 0 });
 
     let isNextBtnExist = true;
@@ -90,9 +101,20 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
 
         const page2 = await page.browser().newPage();
         try {
+          page2.on("response", async (response) => {
+            if (response.status() === 400) {
+              const cookies = await page2.cookies();
+              for (const cookie of cookies) {
+                await page2.deleteCookie(cookie);
+              }
+              await page2.reload();
+              await delay(60000);
+            }
+          });
           await page2.goto(contentLink, {
             timeout: 160000,
           });
+
           await page2.bringToFront();
           try {
             await page2.waitForSelector("#listingcontent");
@@ -138,7 +160,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
           }
 
           await page2.close();
-          await delay(1000);
+          await delay(4000);
         } catch (error) {
           await page2.close();
           console.log(error);
@@ -158,7 +180,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
         await nextButton.evaluate((b) => b.click());
         // wait for page to fully load
         // await page.waitForNavigation({ waitUnitl: "networkidle2" });
-        await delay(4000);
+        await delay(8000);
 
         // capture the website's aggressive popup
         await page.evaluate(() => {
