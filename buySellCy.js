@@ -134,7 +134,8 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
                   const [key, value] = listText.split(": ");
                   keyFeaturesObj[key] = value;
                 } else {
-                  others.push(listText);
+                  const clearedListText = listText.trim();
+                  others.push(clearedListText);
                   keyFeaturesObj["other_features"] = others.join(", ");
                 }
               } catch (error) {}
