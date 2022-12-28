@@ -18,6 +18,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
     puppeteerOptions: {
       headless: true,
       defaultViewport: false,
+      userDataDir: "./tmp",
     },
     timeout: 115200000, //32h to timeout
   });
