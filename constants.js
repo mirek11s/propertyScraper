@@ -8,6 +8,15 @@ export const urlsBazaraki = [
   // "https://www.bazaraki.com/real-estate-for-sale/other/",
 ];
 
+export const urlsBazarakiRents = [
+  "https://www.bazaraki.com/real-estate-to-rent/apartments-flats/",
+  "https://www.bazaraki.com/real-estate-to-rent/commercial-property/",
+  "https://www.bazaraki.com/real-estate-to-rent/rooms-flatmates/",
+  "https://www.bazaraki.com/real-estate-to-rent/houses/",
+  "https://www.bazaraki.com/real-estate-to-rent/short-term/",
+  "https://www.bazaraki.com/real-estate-to-rent/plots-of-land/",
+];
+
 export const buySellUrls = [
   "https://www.buysellcyprus.com/properties-for-sale/filter-resale/cur-EUR/sort-ru/page-1",
   "https://www.buysellcyprus.com/properties-for-sale/filter-new/cur-EUR/sort-ru/page-1",

@@ -3,7 +3,7 @@ import vanillaPuppeteer from "puppeteer";
 import Stealth from "puppeteer-extra-plugin-stealth";
 import { Cluster } from "puppeteer-cluster";
 import { addExtra } from "puppeteer-extra";
-import { delay, urlsBazaraki, getDateString } from "./constants.js";
+import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constants.js";
 
 (async () => {
   const puppeteer = addExtra(vanillaPuppeteer);
@@ -28,11 +28,25 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
     console.log(`Error crawling ${data}: ${err.message}`);
   });
 
+  // --scrape=today --scrape=rents
   let list = [];
+  let urlsToScrape = urlsBazaraki;
   const date = getDateString();
-  const isDailyScrape = process.argv.find((arg) => arg.startsWith("--today"))?.split("=")[1];
+  const scrapeArgument = process.argv.find((arg) => arg.startsWith("--scrape"))?.split("=")[1];
   let nameStr = "";
-  isDailyScrape ? (nameStr = `bazaraki_${date}.json`) : (nameStr = `bazaraki_full_${date}.json`);
+  switch (scrapeArgument) {
+    case "today":
+      nameStr = `bazaraki_daily_${date}.json`;
+      break;
+    case "rents":
+      nameStr = `bazaraki_rents_${date}.json`;
+      urlsToScrape = urlsBazarakiRents;
+      break;
+    case "fullSales":
+    default:
+      nameStr = `bazaraki_full_${date}.json`;
+      break;
+  }
 
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url, { timeout: 0 });
@@ -91,8 +105,6 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
         const newPrice = clearedPrice.replace(/\./g, ",");
         const clearTextDescription = textDescription.replace(/\s+/g, " ").trim();
 
-        // open the new tab to take the information from the whole advert
-        // Scroll to the offer element on the page
         await page.evaluate((offer) => {
           offer.scrollIntoView();
         }, offer);
@@ -146,14 +158,14 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
           const existsInList = list.some((obj) => obj.adId === adId);
           isAdFromToday = clearTextDescription.includes("Today");
 
-          if (!existsInList && !isDailyScrape) {
+          if (!existsInList && (scrapeArgument === "fullSales" || scrapeArgument === "rents")) {
             list.push(newProperty);
             const jsonList = JSON.stringify(newProperty) + ",";
             fs.appendFileSync(nameStr, jsonList, function (err) {
               if (err) throw err;
             });
-          } else if (!existsInList && isDailyScrape && isAdFromToday) {
-            // if the script is run with --today=true, write to file only today's posts
+          } else if (!existsInList && scrapeArgument === "today" && isAdFromToday) {
+            // if the script is run with --scrape=today, write to file only today's posts
             list.push(newProperty);
             const jsonList = JSON.stringify(newProperty) + ",";
             fs.appendFileSync(nameStr, jsonList, function (err) {
@@ -179,7 +191,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
       isNextBtnExist = nextButton !== null;
 
       // detect if the next ad is not from today and stop the search
-      if (isDailyScrape && !isAdFromToday) {
+      if (scrapeArgument === "today" && !isAdFromToday) {
         isNextBtnExist = false;
       }
 
@@ -192,7 +204,7 @@ import { delay, urlsBazaraki, getDateString } from "./constants.js";
     }
   });
 
-  for (const url of urlsBazaraki) {
+  for (const url of urlsToScrape) {
     await cluster.queue(url);
   }
 
