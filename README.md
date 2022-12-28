@@ -1,10 +1,16 @@
 # propertyScraper
 
 To trigger Bazaraki scraping for only today real estate ads run:
-node .\clusterBazaraki.js --today=true
+node .\clusterBazaraki.js --scrape=today
 
-To trigger scraping for all ads:
-node .\clusterBazaraki.js
+For full sales list:
+node .\clusterBazaraki.js --scrape=fullSales
+
+For full rents list:
+node .\clusterBazaraki.js --scrape=rents
 
 Scraping for eAuctionsCy:
 node .\eAuctionCy.js
+
+Scraping for buySellCy:
+node .\buySellCy.js
