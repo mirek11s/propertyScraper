@@ -12,7 +12,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
   const cluster = await Cluster.launch({
     puppeteer,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    maxConcurrency: 2,
+    maxConcurrency: 1,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
@@ -39,7 +39,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
           await page.deleteCookie(cookie);
         }
         await page.reload();
-        await delay(60000);
+        await delay(20000);
       }
     });
 
@@ -57,6 +57,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
       for (const ad of adsContainer) {
         let price_in_euro = "";
         let price_in_gbp = "";
+        let category_name = "";
         let keyFeaturesObj = {};
 
         try {
@@ -89,6 +90,20 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
           console.log(e);
         }
 
+        try {
+          category_name = await page.evaluate(
+            (el) =>
+              el
+                .querySelector(
+                  "div.bs-content.bs-content-center.padding-top-20 > div.bs-card-title > a > span"
+                )
+                .textContent.trim(),
+            ad
+          );
+        } catch (e) {
+          console.log(e);
+        }
+
         //////////////////////////////////////////////////////////////////
         // find the link in the advert and then open newTab using it
         const contentLink = await page.evaluate((offer) => {
@@ -108,11 +123,11 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
                 await page2.deleteCookie(cookie);
               }
               await page2.reload();
-              await delay(60000);
+              await delay(20000);
             }
           });
           await page2.goto(contentLink, {
-            timeout: 160000,
+            timeout: 480000,
           });
 
           await page2.bringToFront();
@@ -140,12 +155,13 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
                 }
               } catch (error) {}
             }
-            await delay(5000);
+            await delay(4000);
           }
 
           const newProperty = {
             EURO: price_in_euro,
             GBP: price_in_gbp,
+            Category: category_name,
             ...keyFeaturesObj,
           };
           // filter the list to check if current adId already exist and if it does, dont push it to avoid duplicates
@@ -161,7 +177,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
           }
 
           await page2.close();
-          await delay(4000);
+          await delay(2000);
         } catch (error) {
           await page2.close();
           console.log(error);
@@ -181,7 +197,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
         await nextButton.evaluate((b) => b.click());
         // wait for page to fully load
         // await page.waitForNavigation({ waitUnitl: "networkidle2" });
-        await delay(8000);
+        await delay(5000);
 
         // capture the website's aggressive popup
         await page.evaluate(() => {
