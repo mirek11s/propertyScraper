@@ -117,16 +117,16 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
 
         const page2 = await page.browser().newPage();
         try {
-          page2.on("response", async (response) => {
-            if (response.status() === 400) {
-              const cookies = await page2.cookies();
-              for (const cookie of cookies) {
-                await page2.deleteCookie(cookie);
-              }
-              await page2.reload();
-              await delay(10000);
-            }
-          });
+          //   page2.on("response", async (response) => {
+          //     if (response.status() === 400) {
+          //       const cookies = await page2.cookies();
+          //       for (const cookie of cookies) {
+          //         await page2.deleteCookie(cookie);
+          //       }
+          //       await page2.reload();
+          //       await delay(10000);
+          //     }
+          //   });
           await page2.goto(contentLink, {
             timeout: 480000,
           });
