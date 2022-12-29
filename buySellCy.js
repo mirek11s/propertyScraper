@@ -12,11 +12,11 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
   const cluster = await Cluster.launch({
     puppeteer,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    maxConcurrency: 1,
+    maxConcurrency: 2,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
-      headless: true,
+      headless: false,
       defaultViewport: false,
       userDataDir: "./tmp",
     },
@@ -117,18 +117,28 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
 
         const page2 = await page.browser().newPage();
         try {
-          //   page2.on("response", async (response) => {
-          //     if (response.status() === 400) {
-          //       const cookies = await page2.cookies();
-          //       for (const cookie of cookies) {
-          //         await page2.deleteCookie(cookie);
-          //       }
-          //       await page2.reload();
-          //       await delay(10000);
-          //     }
-          //   });
+          page2.on("response", async (response) => {
+            if (response.status() === 400) {
+              //   const cookies = await page2.cookies();
+              //   for (const cookie of cookies) {
+              //     await page2.deleteCookie(cookie);
+              //   }
+
+              // Clear the browser cache
+              //   await page.evaluateOnNewDocument(() => {
+              //     localStorage.clear();
+              //     sessionStorage.clear();
+              //   });
+              await page2.reload({
+                timeout: 94000,
+                bypassCache: true,
+                waitUntil: ["networkidle0", "domcontentloaded"],
+              });
+              await delay(10000);
+            }
+          });
           await page2.goto(contentLink, {
-            timeout: 480000,
+            timeout: 0,
           });
 
           await page2.bringToFront();
