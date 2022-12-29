@@ -12,11 +12,11 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
   const cluster = await Cluster.launch({
     puppeteer,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    maxConcurrency: 2,
+    maxConcurrency: 1,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
-      headless: false,
+      headless: true,
       defaultViewport: false,
       userDataDir: "./tmp",
     },
@@ -119,34 +119,40 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
         try {
           page2.on("response", async (response) => {
             if (response.status() === 400) {
-              //   const cookies = await page2.cookies();
-              //   for (const cookie of cookies) {
-              //     await page2.deleteCookie(cookie);
-              //   }
-
-              // Clear the browser cache
-              //   await page.evaluateOnNewDocument(() => {
-              //     localStorage.clear();
-              //     sessionStorage.clear();
-              //   });
-              await page2.reload({
-                timeout: 94000,
-                bypassCache: true,
-                waitUntil: ["networkidle0", "domcontentloaded"],
-              });
-              await delay(10000);
+              const cookies = await page.cookies();
+              for (const cookie of cookies) {
+                await page.deleteCookie(cookie);
+              }
+              await page.reload();
+              await delay(20000);
             }
           });
+
           await page2.goto(contentLink, {
-            timeout: 0,
+            timeout: 94000,
           });
 
-          await page2.bringToFront();
+          //   page2.on("response", async (response) => {
+          //     if (response.status() === 400) {
+          //       const cookies = await page2.cookies();
+          //       for (const cookie of cookies) {
+          //         await page2.deleteCookie(cookie);
+          //       }
+
+          //       await page2.reload({
+          //         timeout: 94000,
+          //         bypassCache: true,
+          //         waitUntil: ["networkidle0", "domcontentloaded"],
+          //       });
+          //       await delay(10000);
+          //     }
+          //   });
+
           try {
+            await page2.bringToFront();
             await page2.waitForSelector("#listingcontent");
           } catch (error) {
             console.log(error);
-            await page2.close();
           }
 
           const keyFeaturesContainer = await page2.$("#multi-column");
