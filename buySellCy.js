@@ -48,6 +48,11 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
 
     let isNextBtnExist = true;
     while (isNextBtnExist) {
+      // capture the website's aggressive popup
+      await page.evaluate(() => {
+        window.scrollBy(0, 1500);
+      });
+
       try {
         await page.waitForSelector("#listing-swipers");
       } catch (error) {
@@ -123,8 +128,9 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
               for (const cookie of cookies) {
                 await page.deleteCookie(cookie);
               }
+              await page2.reload();
               await page.reload();
-              await delay(20000);
+              await delay(12000);
             }
           });
 
@@ -173,7 +179,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
                 }
               } catch (error) {}
             }
-            await delay(4000);
+            await delay(8000);
           }
 
           const newProperty = {
@@ -195,10 +201,9 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
           }
 
           await page2.close();
-          await delay(2000);
+          await delay(10000);
         } catch (error) {
-          await page2.close();
-          console.log(error);
+          console.log("error comes from hereee: ", error);
         }
       }
       // check if button container exists and click next
@@ -215,12 +220,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
         await nextButton.evaluate((b) => b.click());
         // wait for page to fully load
         // await page.waitForNavigation({ waitUnitl: "networkidle2" });
-        await delay(5000);
-
-        // capture the website's aggressive popup
-        await page.evaluate(() => {
-          window.scrollBy(0, 1500);
-        });
+        await delay(12000);
       }
     }
   });
