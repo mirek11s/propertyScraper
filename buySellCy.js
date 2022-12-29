@@ -124,12 +124,11 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
         try {
           page2.on("response", async (response) => {
             if (response.status() === 400) {
-              const cookies = await page.cookies();
+              const cookies = await page2.cookies();
               for (const cookie of cookies) {
-                await page.deleteCookie(cookie);
+                await page2.deleteCookie(cookie);
               }
               await page2.reload();
-              await page.reload();
               await delay(12000);
             }
           });
