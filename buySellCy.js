@@ -20,7 +20,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
       defaultViewport: false,
       userDataDir: "./tmp",
     },
-    timeout: 115200000, //32h to timeout
+    timeout: 145200000,
   });
 
   // handle on error in one of the pages so it does not crash the script
