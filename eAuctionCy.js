@@ -16,7 +16,7 @@ import { delay, getDateString } from "./constants.js";
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
-      headless: true,
+      headless: false,
       defaultViewport: false,
       userDataDir: "./tmp",
     },
@@ -33,7 +33,7 @@ import { delay, getDateString } from "./constants.js";
     await page.goto(url, { timeout: 0 });
 
     try {
-      await page.waitForSelector("#langE");
+      await page.waitForSelector("#langEn");
     } catch (error) {}
     const englishLangBtn = await page.$("#langEn");
     await englishLangBtn.click();
@@ -57,6 +57,7 @@ import { delay, getDateString } from "./constants.js";
         let area_sq_m = "";
         let mortgage_lender_name = "";
         let notification_date = "";
+        let registered_share_or_interest = "";
 
         try {
           date_of_conduct = await page.evaluate(
@@ -106,22 +107,27 @@ import { delay, getDateString } from "./constants.js";
         }, auction);
 
         const page2 = await page.browser().newPage();
+
         try {
           await page2.goto(`https://www.eauction-cy.com${contentLink}`, {
             timeout: 160000,
           });
+
           await page2.bringToFront();
+
           try {
             await page2.waitForSelector("#PropertyArea");
           } catch (error) {
             console.log(error);
           }
+
           try {
             const uniqueCodeElement = await page2.$(".AuctionDetailsDivR .ADetailsinput");
             unique_code = await page2.evaluate((el) => el.textContent, uniqueCodeElement);
           } catch (error) {
             console.log(error);
           }
+
           try {
             date_posted = await page2.evaluate(() => {
               const dirtyDate = document.querySelector(".ADetailsinputDateOn").textContent;
@@ -133,6 +139,7 @@ import { delay, getDateString } from "./constants.js";
           } catch (error) {
             console.log(error);
           }
+
           try {
             status = await page2.evaluate(() => {
               const div = document.querySelector(".StateValue");
@@ -141,6 +148,7 @@ import { delay, getDateString } from "./constants.js";
           } catch (error) {
             console.log(error);
           }
+
           try {
             real_estate_type = await page2.evaluate(() => {
               return document.querySelector(
@@ -150,6 +158,7 @@ import { delay, getDateString } from "./constants.js";
           } catch (error) {
             console.log(error);
           }
+
           try {
             area_sq_m = await page2.evaluate(() => {
               return document.querySelector("#PropertyArea").textContent;
@@ -157,6 +166,7 @@ import { delay, getDateString } from "./constants.js";
           } catch (error) {
             console.log(error);
           }
+
           try {
             mortgage_lender_name = await page2.evaluate(() => {
               const dirtyLabel = document.querySelector(".ADetailsinput2Cell");
@@ -166,6 +176,7 @@ import { delay, getDateString } from "./constants.js";
           } catch (error) {
             console.log(error);
           }
+
           try {
             notification_date = await page2.evaluate(() => {
               return document.querySelector("#publishDate").textContent;
@@ -173,6 +184,15 @@ import { delay, getDateString } from "./constants.js";
           } catch (error) {
             console.log(error);
           }
+
+          try {
+            registered_share_or_interest = await page2.evaluate(() => {
+              return document.querySelector("#PropertyInterestToSell").textContent;
+            });
+          } catch (error) {
+            console.log(error);
+          }
+
           const scrapedData = {
             date_of_conduct,
             date_posted,
@@ -185,6 +205,7 @@ import { delay, getDateString } from "./constants.js";
             area_sq_m,
             mortgage_lender_name,
             notification_date,
+            registered_share_or_interest,
           };
           // filter the list to check if current unique_code already exist and if it does, dont push it to avoid duplicates
           const existsInList = list.some((obj) => obj.unique_code === unique_code);
