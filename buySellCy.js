@@ -64,6 +64,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
         let price_in_euro = "";
         let price_in_gbp = "";
         let category_name = "";
+        let location = "";
         let keyFeaturesObj = {};
 
         try {
@@ -137,27 +138,23 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
             timeout: 94000,
           });
 
-          //   page2.on("response", async (response) => {
-          //     if (response.status() === 400) {
-          //       const cookies = await page2.cookies();
-          //       for (const cookie of cookies) {
-          //         await page2.deleteCookie(cookie);
-          //       }
-
-          //       await page2.reload({
-          //         timeout: 94000,
-          //         bypassCache: true,
-          //         waitUntil: ["networkidle0", "domcontentloaded"],
-          //       });
-          //       await delay(10000);
-          //     }
-          //   });
-
           try {
             await page2.bringToFront();
             await page2.waitForSelector("#listingcontent");
           } catch (error) {
             console.log(error);
+          }
+
+          try {
+            location = await page2.evaluate(() =>
+              document
+                .querySelector(
+                  "#listingcontent > div:nth-child(7) > div.bs-listing-info-header > div:nth-child(1) > div:nth-child(2)"
+                )
+                .textContent.trim()
+            );
+          } catch (e) {
+            console.log(e);
           }
 
           const keyFeaturesContainer = await page2.$("#multi-column");
@@ -185,6 +182,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
             EURO: price_in_euro,
             GBP: price_in_gbp,
             Category: category_name,
+            location,
             ...keyFeaturesObj,
           };
           // filter the list to check if current adId already exist and if it does, dont push it to avoid duplicates
