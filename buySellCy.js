@@ -175,7 +175,7 @@ import { delay, buySellUrls, getDateString } from "./constants.js";
                 }
               } catch (error) {}
             }
-            await delay(8000);
+            await delay(10000);
           }
 
           const newProperty = {
