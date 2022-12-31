@@ -5,6 +5,33 @@ import { Cluster } from "puppeteer-cluster";
 import { addExtra } from "puppeteer-extra";
 import { delay, klimaToMesitesUrls, klimaToMesitesRents, getDateString } from "./constants.js";
 
+const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
+  let items = [];
+  while (itemTargetCount > items.length) {
+    items = await page.$$("#myhome-listing > div");
+
+    const previousHeight = await page.evaluate("document.body.scrollHeight");
+    await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
+    await delay(2000);
+
+    const nextButton = await page.$(
+      "#myhome-listing-grid > div > div.mh-layout__content-right > div.mh-search__more > button"
+    );
+    const isBtnExist = nextButton !== null;
+
+    if (isBtnExist) {
+      await nextButton.evaluate((b) => b.click());
+      await delay(2000);
+    }
+
+    try {
+      await page.waitForFunction(`document.body.scrollHeight > ${previousHeight}`);
+    } catch (error) {}
+  }
+
+  return items;
+};
+
 (async () => {
   const puppeteer = addExtra(vanillaPuppeteer);
   puppeteer.use(Stealth());
@@ -12,7 +39,7 @@ import { delay, klimaToMesitesUrls, klimaToMesitesRents, getDateString } from ".
   const cluster = await Cluster.launch({
     puppeteer,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    maxConcurrency: 2,
+    maxConcurrency: 1,
     concurrency: Cluster.CONCURRENCY_PAGE,
     // monitor: true,
     puppeteerOptions: {
@@ -23,7 +50,6 @@ import { delay, klimaToMesitesUrls, klimaToMesitesRents, getDateString } from ".
     timeout: 86400000, //24h to timeout
   });
 
-  // handle on error in one of the pages so it does not crash the script
   cluster.on("taskerror", (err, data) => {
     console.log(`Error crawling ${data}: ${err.message}`);
   });
@@ -47,7 +73,66 @@ import { delay, klimaToMesitesUrls, klimaToMesitesRents, getDateString } from ".
 
   await cluster.task(async ({ page, data: url }) => {
     await page.goto(url, { timeout: 0 });
+    try {
+      await page.waitForSelector("#myhome-listing-grid > div > div.mh-layout__content-right");
+    } catch (error) {}
 
+    // get the number of ads for the category
+    let numberOfAds = 0;
+    try {
+      const adsFound = await page.evaluate(() => {
+        const element = document.querySelector("div > ul > li.mh-search__results");
+        return element.textContent.trim();
+      });
+      numberOfAds = parseInt(adsFound.match(/^\d+/)[0]);
+    } catch (e) {
+      console.log(e);
+    }
+
+    const itemsContainer = await scrapeInfiniteScrollItems(page, numberOfAds);
+
+    for (const item of itemsContainer) {
+      let title = "";
+      let price = "";
+
+      const contentLink = await page.evaluate((offer) => {
+        const anchor = offer.querySelector("a.mh-thumbnail");
+        const href = anchor.getAttribute("href");
+        return href;
+      }, item);
+
+      const page2 = await page.browser().newPage();
+      await page2.goto(contentLink, {
+        timeout: 94000,
+      });
+
+      try {
+        await page2.bringToFront();
+        await page2.waitForSelector("#footer");
+      } catch (error) {
+        console.log(error);
+      }
+
+      try {
+        title = await page2.evaluate(() =>
+          document.querySelector("div.custom-header > h2").textContent.trim()
+        );
+      } catch (e) {
+        console.log(e);
+      }
+      try {
+        const extractedPrice = await page2.evaluate(() =>
+          document.querySelector("div.custom-header > div.custom-price").textContent.trim()
+        );
+        price = extractedPrice.replace(/\./g, ",");
+      } catch (e) {
+        console.log(e);
+      }
+
+      console.log(title);
+    }
+
+    console.log(itemsContainer);
     await delay(5000);
   });
 

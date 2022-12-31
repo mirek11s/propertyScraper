@@ -24,11 +24,19 @@ export const buySellUrls = [
 ];
 
 export const klimaToMesitesUrls = [
-  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=house&sortBy=priceLowToHigh",
-  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=apartment&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=office&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=house&city=nicosia&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=house&city=larnaca&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=house&city=limassol&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=house&city=famagusta&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=house&city=paphos&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=apartment&city=nicosia&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=apartment&city=larnaca&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=apartment&city=limassol&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=apartment&city=famagusta&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=apartment&city=paphos&sortBy=priceLowToHigh",
   "https://ktimatomesites.com/properties/?offer-type=sale&property-type=plot&sortBy=priceLowToHigh",
   "https://ktimatomesites.com/properties/?offer-type=sale&property-type=land&sortBy=priceLowToHigh",
-  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=office&sortBy=priceLowToHigh",
   "https://ktimatomesites.com/properties/?offer-type=sale&property-type=shop&sortBy=priceLowToHigh",
   "https://ktimatomesites.com/properties/?offer-type=sale&property-type=industrial&sortBy=priceLowToHigh",
   "https://ktimatomesites.com/properties/?offer-type=sale&property-type=residential-building&sortBy=priceLowToHigh",
