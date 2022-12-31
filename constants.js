@@ -23,6 +23,23 @@ export const buySellUrls = [
   "https://www.buysellcyprus.com/properties-for-sale/filter-bank/cur-EUR/sort-ru/page-1",
 ];
 
+export const klimaToMesitesUrls = [
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=house&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=apartment&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=plot&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=land&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=office&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=shop&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=industrial&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=residential-building&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=commercial-building&sortBy=priceLowToHigh",
+  "https://ktimatomesites.com/properties/?offer-type=sale&property-type=business&sortBy=priceLowToHigh",
+];
+
+export const klimaToMesitesRents = [
+  "https://ktimatomesites.com/properties/?offer-type=rent&sortBy=priceLowToHigh",
+];
+
 export const delay = (time) => {
   return new Promise((resolve) => setTimeout(resolve, time));
 };
