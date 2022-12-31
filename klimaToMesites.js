@@ -12,7 +12,7 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
 
     const previousHeight = await page.evaluate("document.body.scrollHeight");
     await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
-    await delay(2000);
+    await delay(4000);
 
     const nextButton = await page.$(
       "#myhome-listing-grid > div > div.mh-layout__content-right > div.mh-search__more > button"
@@ -39,9 +39,9 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
   const cluster = await Cluster.launch({
     puppeteer,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    maxConcurrency: 1,
+    maxConcurrency: 2,
     concurrency: Cluster.CONCURRENCY_PAGE,
-    // monitor: true,
+    monitor: true,
     puppeteerOptions: {
       headless: false,
       defaultViewport: false,
@@ -55,7 +55,7 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
   });
 
   // --scrape=fullSales --scrape=rents
-  let list = [];
+  let listAds = [];
   let urlsToScrape = klimaToMesitesUrls;
   const date = getDateString();
   const scrapeArgument = process.argv.find((arg) => arg.startsWith("--scrape"))?.split("=")[1];
@@ -94,6 +94,7 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
     for (const item of itemsContainer) {
       let title = "";
       let price = "";
+      let keysObj = {};
 
       const contentLink = await page.evaluate((offer) => {
         const anchor = offer.querySelector("a.mh-thumbnail");
@@ -129,11 +130,42 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
         console.log(e);
       }
 
-      console.log(title);
-    }
+      const summaryContainer = await page2.$(".mh-estate__list__inner");
+      if (summaryContainer) {
+        const lists = await summaryContainer.$$("li");
+        for (const list of lists) {
+          try {
+            const listText = await page2.evaluate((span) => span.textContent, list);
+            const clearedText = listText.replace(/\s+/g, " ").trim();
+            // create object out of the string ('Area: 95 m²') and push to the list:
+            const [key, value] = clearedText.split(": ");
+            keysObj[key] = value;
+          } catch (error) {
+            console.log(error);
+          }
+        }
+        await delay(6000);
+      }
 
-    console.log(itemsContainer);
-    await delay(5000);
+      const newProperty = {
+        title,
+        price,
+        ...keysObj,
+      };
+
+      const existsInList = listAds.some((obj) => obj["Ref. ID"] === keysObj["Ref. ID"]);
+
+      if (!existsInList) {
+        listAds.push(newProperty);
+        const jsonList = JSON.stringify(newProperty) + ",";
+        fs.appendFileSync(nameStr, jsonList, function (err) {
+          if (err) throw err;
+        });
+      }
+
+      await page2.close();
+      await delay(6000);
+    }
   });
 
   for (const url of urlsToScrape) {
@@ -144,7 +176,7 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
   await cluster.close();
 
   // adding the array brackets at the end of the script
-  //   const fileData = fs.readFileSync(nameStr, "utf8");
-  //   const newData = "[" + fileData + "]";
-  //   fs.writeFileSync(nameStr, newData, "utf8");
+  const fileData = fs.readFileSync(nameStr, "utf8");
+  const newData = "[" + fileData + "]";
+  fs.writeFileSync(nameStr, newData, "utf8");
 })();
