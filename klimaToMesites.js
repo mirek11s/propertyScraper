@@ -43,7 +43,7 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
-      headless: false,
+      headless: true,
       defaultViewport: false,
       userDataDir: "./tmp",
     },
