@@ -14,3 +14,7 @@ node .\eAuctionCy.js
 
 Scraping for buySellCy:
 node .\buySellCy.js
+
+KlimaToMesites:
+node .\klimaToMesites.js --scrape=fullSales
+node .\klimaToMesites.js --scrape=rents
