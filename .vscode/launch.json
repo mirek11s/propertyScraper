@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Launch Program",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}\\klimaToMesites.js"
+      "program": "${workspaceFolder}\\retailsBazaraki.js"
     }
   ]
 }
