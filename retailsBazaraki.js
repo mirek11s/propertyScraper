@@ -246,5 +246,5 @@ import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constan
   // adding the array brackets at the end of the script
   const fileData = fs.readFileSync(`bazaraki_retails_${date}.json`, "utf8");
   const newData = "[" + fileData + "]";
-  fs.writeFileSync(nameStr, newData, "utf8");
+  fs.writeFileSync(`bazaraki_retails_${date}.json`, newData, "utf8");
 })();
