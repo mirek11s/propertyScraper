@@ -1,5 +1,7 @@
 node_modules/
 tmp/
+.vscode/settings.json
+.vscode/launch.json
 bazaraki*
 eAuctionCy*
 buySellCy*
