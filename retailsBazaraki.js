@@ -3,7 +3,12 @@ import vanillaPuppeteer from "puppeteer";
 import Stealth from "puppeteer-extra-plugin-stealth";
 import { Cluster } from "puppeteer-cluster";
 import { addExtra } from "puppeteer-extra";
-import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constants.js";
+import {
+  delay,
+  urlsBazaraki,
+  urlsBazarakiRents,
+  getDateString,
+} from "./constants.js";
 
 (async () => {
   const puppeteer = addExtra(vanillaPuppeteer);
@@ -16,7 +21,7 @@ import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constan
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
-      headless: true,
+      headless: false,
       defaultViewport: false,
       userDataDir: "./tmp",
     },
@@ -95,7 +100,9 @@ import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constan
           // return second span of the div
           try {
             category = await page.evaluate((el) => {
-              const spanElements = el.querySelectorAll(".announcement-block__breadcrumbs > span");
+              const spanElements = el.querySelectorAll(
+                ".announcement-block__breadcrumbs > span"
+              );
               const secondSpan = spanElements[1];
               return secondSpan.textContent;
             }, offer);
@@ -104,7 +111,9 @@ import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constan
           const clearedPrice = price.replace(/\s+/g, " ").trim();
           // replace . with ,
           const newPrice = clearedPrice.replace(/\./g, ",");
-          const clearTextDescription = textDescription.replace(/\s+/g, " ").trim();
+          const clearTextDescription = textDescription
+            .replace(/\s+/g, " ")
+            .trim();
 
           await page.evaluate((offer) => {
             offer.scrollIntoView();
@@ -126,13 +135,16 @@ import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constan
 
             try {
               adId = await page2.evaluate(() => {
-                return document.querySelector(".number-announcement > span").textContent;
+                return document.querySelector(".number-announcement > span")
+                  .textContent;
               });
             } catch (error) {}
 
             // solve the popup afer showing the phone number
             try {
-              const showPhoneNumberBtn = await page2.$(".phone-author__subtext");
+              const showPhoneNumberBtn = await page2.$(
+                ".phone-author__subtext"
+              );
               await showPhoneNumberBtn.evaluate((b) => b.click());
               await delay(1000);
 
@@ -153,7 +165,9 @@ import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constan
 
               try {
                 phoneNumber = await page2.evaluate(() => {
-                  return document.querySelector(".phone-author__subtext > span").textContent.trim();
+                  return document
+                    .querySelector(".phone-author__subtext > span")
+                    .textContent.trim();
                 });
               } catch (error) {}
 
@@ -176,7 +190,10 @@ import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constan
               const lists = await summaryContainer.$$("li");
               for (const list of lists) {
                 try {
-                  const listText = await page2.evaluate((span) => span.textContent, list);
+                  const listText = await page2.evaluate(
+                    (span) => span.textContent,
+                    list
+                  );
                   const clearedText = listText.replace(/\s+/g, " ").trim();
                   // create object out of the string ('Area: 95 m²') and push to the list:
                   const [key, value] = clearedText.split(": ");
@@ -204,9 +221,13 @@ import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constan
             if (!existsInList) {
               list.push(newProperty);
               const jsonList = JSON.stringify(newProperty) + ",";
-              fs.appendFileSync(`bazaraki_retails_${date}.json`, jsonList, function (err) {
-                if (err) throw err;
-              });
+              fs.appendFileSync(
+                `bazaraki_retails_${date}.json`,
+                jsonList,
+                function (err) {
+                  if (err) throw err;
+                }
+              );
             }
 
             await page2.close();
@@ -224,7 +245,9 @@ import { delay, urlsBazaraki, urlsBazarakiRents, getDateString } from "./constan
         console.log(error);
       }
 
-      const nextButton = await page.$(".number-list-next.js-page-filter.number-list-line");
+      const nextButton = await page.$(
+        ".number-list-next.js-page-filter.number-list-line"
+      );
       isNextBtnExist = nextButton !== null;
 
       if (isNextBtnExist) {
