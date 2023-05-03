@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "2captcha": "^3.0.5",
     "puppeteer": "^19.4.1",
     "puppeteer-cluster": "^0.23.0",
     "puppeteer-extra": "^3.3.4",
