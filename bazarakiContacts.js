@@ -12,7 +12,7 @@ import { delay, bazarakiUrlsAll, getDateString } from './constants.js';
   const cluster = await Cluster.launch({
     puppeteer,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    maxConcurrency: 1,
+    maxConcurrency: 2,
     concurrency: Cluster.CONCURRENCY_PAGE,
     monitor: true,
     puppeteerOptions: {
