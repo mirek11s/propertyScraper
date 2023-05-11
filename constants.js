@@ -198,10 +198,27 @@ export const spitoGatosSales = [
   'https://www.spitogatos.com.cy/en/for-sale/other/multiple-areas/area-ids_4501,4800,4801,4803,4805',
 ];
 
-export const spitoGatosRents = [];
-
 export const klimaToMesitesRents = [
   'https://ktimatomesites.com/properties/?offer-type=rent&sortBy=priceLowToHigh',
+];
+
+export const PET_HOSPITALS_URLS = [
+  'https://www.tierarzt-onlineverzeichnis.de/berlin',
+  'https://www.tierarzt-onlineverzeichnis.de/brandenburg',
+  'https://www.tierarzt-onlineverzeichnis.de/bremen',
+  'https://www.tierarzt-onlineverzeichnis.de/hamburg',
+  'https://www.tierarzt-onlineverzeichnis.de/hessen',
+  'https://www.tierarzt-onlineverzeichnis.de/mecklenburg-vorpommern',
+  'https://www.tierarzt-onlineverzeichnis.de/niedersachsen',
+  'https://www.tierarzt-onlineverzeichnis.de/nordrhein-westfalen',
+  'https://www.tierarzt-onlineverzeichnis.de/rheinland-pfalz',
+  'https://www.tierarzt-onlineverzeichnis.de/saarland',
+  'https://www.tierarzt-onlineverzeichnis.de/sachsen',
+  'https://www.tierarzt-onlineverzeichnis.de/sachsen-anhalt',
+  'https://www.tierarzt-onlineverzeichnis.de/schleswig-holstein',
+  'https://www.tierarzt-onlineverzeichnis.de/thueringen',
+  'https://www.tierarzt-onlineverzeichnis.de/baden-wuerttemberg',
+  'https://www.tierarzt-onlineverzeichnis.de/bayern',
 ];
 
 export const delay = (time) => {
